@@ -235,8 +235,13 @@ def main():
     passed = [r for r in results if r["verdict"] == "PASS"]
     overall = "FAIL" if failed else ("PASS" if passed else "SKIP")
 
+    # 关键步骤被跳过时，「PASS」会被误读成「全都验过了」——必须显式降级声明
+    critical = {"账本校验", "引用校验"}
+    degraded = [r["step"] for r in skipped if r["step"] in critical]
+
     if args.json:
         print(json.dumps({"check": "all", "depth": depth, "verdict": overall,
+                          "degraded": bool(degraded), "degraded_steps": degraded,
                           "results": results, "notes": notes},
                          ensure_ascii=False, indent=2))
     else:
@@ -251,6 +256,12 @@ def main():
                 print(f"  提示  {n}")
         print("=" * 66)
         print(f"总判定: {overall}（{len(passed)} 通过 / {len(failed)} 失败 / {len(skipped)} 跳过）")
+        if degraded:
+            print()
+            print("!" * 66)
+            print(f"降级模式：未做机器校验 —— {'、'.join(degraded)} 被跳过。")
+            print("报告里必须写明这一行，不要让人以为这些检查已经做过了。")
+            print("!" * 66)
         if failed:
             print("先把上面标「失败」的产物修好再交。注意：不要为了通过去改账本。")
         print("提醒: 这些脚本只保证「账本自洽、引用闭合」，不保证「结论正确」。")
