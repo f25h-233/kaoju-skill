@@ -115,7 +115,8 @@ kaoju/
 │   └── emit_run_summary.py      # 运行摘要
 ├── agents/research-fetcher.md   # 受限抓取代理（需装到 ~/.claude/agents/）
 ├── fixtures/                    # 测试夹具（正例 + 反例）
-└── evals/evals.json             # 路由回归测试
+├── evals/evals.json             # 路由回归测试
+└── ROADMAP.md                   # 已知不足 + 已想清楚但没做的改法
 ```
 
 ---
@@ -143,6 +144,14 @@ kaoju/
 | [grapeot/context-infrastructure](https://github.com/grapeot/context-infrastructure) | 无许可证 | Deep-vs-Wide 框架的思想源头（致谢） |
 
 第三项只取思想不取文字的原因，见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) §3。
+
+---
+
+## 已知不足
+
+见 [ROADMAP.md](ROADMAP.md)。里面记录了**红队强度不足**的完整诊断（三条病因、哪条已修、哪条待办），以及每条待办的改法、代价和**为什么现在不做**。
+
+一句话版本：红队不够红的根因不是角色少，是**所有子代理跑同一个模型**——加角色等于让同一个人多戴一顶帽子。所以待办方向是**改任务形态**（从「检查」到「重构利益结构 + 生成反方论证」），不是加角色。
 
 ---
 
