@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+Thumbs.db
+
+# 调研工作产物不入库（本目录同时是 skill 安装位与 git 工作区）
+workspace/
+_check/
+*.tmp

@@ -1,0 +1,118 @@
+{
+  "skill_name": "kaoju",
+  "description": "路由回归测试：验证 kaoju 在「该用」和「不该用」两类请求上的触发行为。",
+  "evals": [
+    {
+      "id": "route-01",
+      "prompt": "帮我深挖一下 LNG 接收站的投资逻辑，我想知道值不值得投",
+      "should_trigger": true,
+      "expected_output": "加载 kaoju，进入 P0 立案：逐字抄下原问题，回答元思考三问，写假设",
+      "assertions": [
+        "技能被触发",
+        "输出中出现「原问题」且逐字包含用户的问题原文",
+        "输出中出现元思考三问的答案",
+        "提出 H1-H3 假设且至少一条反直觉"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-02",
+      "prompt": "考据一下 Postgres 逻辑复制和 CDC 工具的取舍",
+      "should_trigger": true,
+      "expected_output": "加载 kaoju，按流程建账本，结论需跨多来源三角验证",
+      "assertions": [
+        "技能被触发",
+        "输出中提及 sources.csv 或 claims.csv",
+        "输出中提及四条件三角验证或某个 single-* 状态"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-03",
+      "prompt": "写一份调研报告，主题是国产工业软件的替代现状",
+      "should_trigger": true,
+      "expected_output": "加载 kaoju，走完整九阶段流程，产物落盘到工作目录",
+      "assertions": [
+        "技能被触发",
+        "输出中出现落盘产物名（research-plan.md / sources.csv / claims.csv / report.md 之一）"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-04",
+      "prompt": "这个技术选型值不值得，帮我查清楚来龙去脉",
+      "should_trigger": true,
+      "expected_output": "加载 kaoju，按决策型调研处理",
+      "assertions": [
+        "技能被触发",
+        "输出体现「决策问题、有取舍」的处理方式"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-05",
+      "prompt": "刨根问底：这条政策对我们这个行业到底意味着什么",
+      "should_trigger": true,
+      "expected_output": "加载 kaoju，按政策分析型调研处理",
+      "assertions": [
+        "技能被触发",
+        "输出中提及一手源优先或官方标准与法规这一检索轴"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-06",
+      "prompt": "HTTP 状态码 418 是什么意思",
+      "should_trigger": false,
+      "expected_output": "直接回答即可，不启动调研流程",
+      "assertions": [
+        "技能未被触发",
+        "不产生任何落盘产物",
+        "不要求用户提供工作目录"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-07",
+      "prompt": "总结一下我给你的这份 PDF",
+      "should_trigger": false,
+      "expected_output": "直接总结用户已给的材料，不启动调研流程",
+      "assertions": [
+        "技能未被触发",
+        "不对单篇材料做跨来源三角验证"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-08",
+      "prompt": "帮我把这段话润色一下",
+      "should_trigger": false,
+      "expected_output": "交给写作类技能，不启动调研流程",
+      "assertions": [
+        "技能未被触发"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-09",
+      "prompt": "解释一下什么是幂等",
+      "should_trigger": false,
+      "expected_output": "交给解释类技能（what），不启动调研流程",
+      "assertions": [
+        "技能未被触发"
+      ],
+      "files": []
+    },
+    {
+      "id": "route-10",
+      "prompt": "我装了哪些 skill",
+      "should_trigger": false,
+      "expected_output": "元讨论，列出技能即可，不启动调研流程",
+      "assertions": [
+        "技能未被触发",
+        "不把技能名本身当作触发词"
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+sid,url,title,date,type,credibility,access,root,discovery_path,caveat
+01,https://www.giignl.org/annual-report,GIIGNL 年度报告,2025-04-10,一手,5,full,own,必应|LNG 接收站 投资|zh,-
+02,https://www.cnpc.com.cn/report,中国石油年报,2025-04-01,一手,5,full,own,官网|中国石油 年报|zh,-
+03,https://www.eia.gov/outlook,EIA 天然气展望,2025-06-01,学术,4,full,own,必应|LNG investment outlook|en,-
+04,https://news.example.com/a,某新闻转载 A,2025-05-01,大众媒体,3,full,reuters-2025-03,必应|LNG 接收站|zh,-
+05,https://news2.example.com/b,某新闻转载 B,2025-05-02,大众媒体,2,full,reuters-2025-03,必应|LNG 接收站|zh,-
+06,https://news3.example.com/c,某行业媒体转载 C,2025-05-03,行业媒体,3,full,reuters-2025-03,必应|LNG 接收站|zh,-
