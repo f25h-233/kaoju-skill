@@ -1,6 +1,6 @@
 > ⚠️ **This document is machine-translated from the Chinese original (`README.md`) and has not been reviewed by a human.**
 > **本文档为机器翻译**，未经人工校对。若与 `README.md` 有出入，**以中文版为准**。
-> Translation source: `README.md` @ commit `a7b23b4`, generated 2026-10-20.
+> Translation source: `README.md` @ commit `8e394ba`, generated 2026-10-20.
 
 ---
 
@@ -127,7 +127,8 @@ kaoju/
 │   └── emit_run_summary.py      # Run summary
 ├── agents/research-fetcher.md   # Constrained fetcher agent (install to ~/.claude/agents/)
 ├── fixtures/                    # Test fixtures (passing + failing)
-└── evals/evals.json             # Routing regression tests
+├── evals/evals.json             # Routing regression tests
+└── ROADMAP.md                   # Known gaps + designed-but-not-built changes
 ```
 
 ---
@@ -155,6 +156,14 @@ Every subagent here runs the same model, so the five roles are not five independ
 | [grapeot/context-infrastructure](https://github.com/grapeot/context-infrastructure) | No license | Ideational origin of the Deep-vs-Wide framing (acknowledgement) |
 
 Why the third entry is ideas-only and not text, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) §3.
+
+---
+
+## Known gaps
+
+See [ROADMAP.md](ROADMAP.md). It records the full diagnosis of **insufficiently adversarial red-teaming** (three distinct causes, which is fixed, which is pending), plus each pending item's approach, cost, and **why it is not being done yet**.
+
+The one-line version: the root cause is not too few roles — it is that **every subagent runs the same model**, so adding a role is like having one person wear one more hat. The pending direction is therefore to **change the task shape** (from "checking" to "reconstructing the interest structure + generating a counter-argument"), not to add roles.
 
 ---
 
