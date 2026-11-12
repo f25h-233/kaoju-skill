@@ -1,6 +1,6 @@
 > ⚠️ **This document is machine-translated from the Chinese original (`README.md`) and has not been reviewed by a human.**
 > **本文档为机器翻译**，未经人工校对。若与 `README.md` 有出入，**以中文版为准**。
-> Translation source: `README.md` @ commit `8e394ba`, generated 2026-10-20.
+> Translation source: `README.md` @ commit `8893754`, generated 2026-11-12.
 
 ---
 
