@@ -18,7 +18,7 @@ python check_all.py --workspace <工作目录> --depth shallow|medium|deep
 
 | 步骤 | 脚本 | 查什么 |
 |---|---|---|
-| 1 | `ledger_check.py` | 账本结构与自洽性（11 条断言） |
+| 1 | `ledger_check.py` | 账本结构与自洽性（12 条断言） |
 | 2 | （内建） | `sources.csv` → `_check/sources.json` 转换 |
 | 3 | （内建） | 由 `sources.csv` 生成最小 `registry.md` |
 | 4 | `verify_citations.py` | 报告引用完整性 |
@@ -40,7 +40,7 @@ python emit_run_summary.py --draft <报告.md> --registry _check/registry.md \
 
 ---
 
-## `ledger_check.py` 的 11 条断言
+## `ledger_check.py` 的 12 条断言
 
 | # | 断言 | 违规 |
 |---|---|---|
@@ -48,15 +48,18 @@ python emit_run_summary.py --draft <报告.md> --registry _check/registry.md \
 | 2 | `claims.sources` 的每个 sid 都在源表里 | exit 1 |
 | 3 | 无重复 sid、无同一 URL 登记两次 | exit 1 |
 | 4 | `sources/NN_*.md` 编号与 sid 一一对应 | 越界 exit 1；缺文件警告 |
-| 5 | **重算四条件，须与声明的 `status` 一致** | exit 1 |
+| 5 | **重算状态（四条件 + 利益同向），须与声明的 `status` 一致** | exit 1 |
 | 6 | **`confidence=high` 必须 `primary_source=Y`** | exit 1 |
 | 7 | `source_caveat≠-` 时 `confidence` ≤ medium | exit 1 |
 | 8 | **有分量的异议存在时，必须判 `contested`/`contradicted`** | exit 1 |
 | 9 | 薄源不计入四条件 | 计入则不通过 |
 | 10 | **账本 → 大纲 → 报告三层覆盖** | exit 1 |
 | 11 | `sources` 列编号合法且无重复 | exit 1 |
+| 12 | **源表说源有利益立场时，`source_caveat` 不许填 `-`** | exit 1 |
 
-**第 5、8、10 条是这个 skill 的全部价值所在。** 没有它们，账本就是一张没人看的表格。
+**第 5、8、10、12 条是这个 skill 的全部价值所在。** 没有它们，账本就是一张没人看的表格。
+
+第 12 条接的是第 9 条之后的第五道检查：有效源里 **≥2/3 带利益标注**（`vendor` / `self-reported` / `advocate`）时判 `single-interest`，且论点级 `source_caveat` 必须如实反映。`disputed:NN` 不算利益标注——它是「被质疑」标记，不是立场标记。
 
 ---
 

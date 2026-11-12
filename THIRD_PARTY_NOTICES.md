@@ -15,7 +15,7 @@
 | 内容 | 落在本仓库哪里 |
 |---|---|
 | 四条件三角验证（源数 / 类型数 / 原始出处数 / 发现路径数） | `references/ledger.md`、`scripts/ledger_check.py` |
-| 8 状态枚举、3 值置信度 | `references/ledger.md` |
+| 8 状态枚举、3 值置信度 | `references/ledger.md`（**第 9 个状态 `single-interest` 与 `advocate` 利益标注为本仓库新增**，见下方 §1.1） |
 | 没有一手源则置信度封顶 medium | `references/ledger.md`、断言 6 |
 | 异议保护（少数派不许被多数决压掉） | `references/ledger.md`、断言 8 |
 | `root` / `discovery_path` 元数据设计 | `references/ledger.md`、`references/source-scoring.md` |
@@ -34,6 +34,19 @@
 ### 未吸收
 
 `phases.yaml`、`runner/`、wiki 子系统、`fetch_source.py`、俄文文档体系、其目录约定（`sources/`、`.verify/`、`memo.md` 等）。
+
+### 1.1 本仓库在 deepdive 之外的增补
+
+以下**不是** deepdive 的内容，是本仓库新增，在此明确区分以免归属混淆：
+
+| 增补 | 说明 |
+|---|---|
+| 第 9 个状态 `single-interest` | deepdive 的 8 状态覆盖不到「四条件都满足、但源的利益同向」这个洞。本仓库新增：有效源里 ≥2/3 带利益标注时判 `single-interest`，不许判 `triangulated`。 |
+| `caveat` 的 `advocate` 取值 | deepdive 只有 `vendor` / `self-reported` / `disputed:NN`。本仓库增加 `advocate`（倡导组织、立场团体、行业协会的立场性材料）——倾向性常来自**立场**而非买卖：环保组织与行业协会都不卖设备，但都带着要推动的结论。 |
+| 断言 12 | 源表说源有利益立场时，论点级 `source_caveat` 不许填 `-`。 |
+| 五角色 → 六角色红队 | 「对抗性审稿人」替换为「利益结构分析师」（重构型），新增「反方首席」（生成型）。这是**任务形态改造**，不是 deepdive 的角色设计。 |
+
+起因：2026-10-20 的实测反馈——浅层调研洗不掉材料的倾向性。
 
 ---
 

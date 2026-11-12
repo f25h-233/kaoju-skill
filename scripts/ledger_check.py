@@ -39,13 +39,16 @@ CLAIM_COLS["deep"] = CLAIM_COLS["medium"]
 
 STATUS_VALUES = {
     "triangulated", "contested", "contradicted", "single-type",
-    "single-root", "single-path", "weak", "data-insufficient",
+    "single-root", "single-path", "single-interest", "weak", "data-insufficient",
 }
 CONFIDENCE_VALUES = {"high", "medium", "low"}
 TYPE_VALUES = {"一手", "学术", "行业媒体", "大众媒体", "专家博客", "论坛", "其他"}
 ACCESS_VALUES = {"full", "partial", "abstract", "closed"}
 THIN_ACCESS = {"partial", "abstract", "closed"}
-CAVEAT_VALUES = {"-", "vendor", "self-reported"}
+CAVEAT_VALUES = {"-", "vendor", "self-reported", "advocate"}
+# 「利益标注」只算这三个：它们表示这条源站在某个利益方那边。
+# disputed:NN 是「被质疑」标记，不是立场标记，不计入利益同向统计。
+INTEREST_VALUES = {"vendor", "self-reported", "advocate"}
 SID_RE = re.compile(r"^\d{2}$")
 CAVEAT_DISPUTED_RE = re.compile(r"^disputed:(\d{2})$")
 CLAIM_ID_RE = re.compile(r"CL\d+")
@@ -191,7 +194,7 @@ def load_tables(workspace, depth, rep):
         if acc and acc not in ACCESS_VALUES:
             rep.err("取值域", f"sources.csv 第 {i} 行（sid {sid}）access='{acc}' 不在枚举内: full/partial/abstract/closed")
         if cav and cav not in CAVEAT_VALUES and not CAVEAT_DISPUTED_RE.match(cav):
-            rep.err("取值域", f"sources.csv 第 {i} 行（sid {sid}）caveat='{cav}' 不在枚举内: - / vendor / self-reported / disputed:NN")
+            rep.err("取值域", f"sources.csv 第 {i} 行（sid {sid}）caveat='{cav}' 不在枚举内: - / vendor / self-reported / advocate / disputed:NN")
         if cred and not cred.isdigit():
             rep.err("取值域", f"sources.csv 第 {i} 行（sid {sid}）credibility='{cred}' 不是整数")
 
@@ -278,6 +281,13 @@ def evaluate_claim(workspace, row, by_sid, rep, line_no):
     paths = {(by_sid[s].get("discovery_path") or "").strip() for s in effective}
     n = len(set(effective))
 
+    # 第五道检查：利益是否同向。有效源里 ≥2/3 带利益标注即判 single-interest。
+    # 四条件测的全是「独立」——三个不同公司/域名/搜索路径可以样样独立，
+    # 却都靠卖同一类设备吃饭。独立性不等于没有共同利益，这是四条件覆盖不到的洞。
+    with_caveat = [s for s in effective
+                   if (by_sid[s].get("caveat") or "-").strip() in INTEREST_VALUES]
+    interest_flag = n >= MIN_SOURCES and len(with_caveat) * 3 >= n * 2
+
     if thin_notes:
         rep.note(f"第 {line_no} 行（{row.get('claim_id')}）未计入三角验证的薄源: {', '.join(thin_notes)}")
 
@@ -288,7 +298,10 @@ def evaluate_claim(workspace, row, by_sid, rep, line_no):
 
     detail = (f"有效源 {n} 个（需 ≥{MIN_SOURCES}）、类型 {len(types)} 种、"
               f"原始出处 {len(roots)} 个、发现路径 {len(paths)} 条（后三项各需 ≥{MIN_DIMENSIONS}）")
+    if interest_flag:
+        detail += f"；其中 {len(with_caveat)}/{n} 个源带利益标注（≥2/3 即判 single-interest）"
 
+    # 判定顺序固定：源数 → 类型 → 出处 → 路径 → 利益。前一个不过就停在前一个。
     if n < MIN_SOURCES:
         base = {"weak", "data-insufficient"}
     elif not ok_type:
@@ -297,6 +310,8 @@ def evaluate_claim(workspace, row, by_sid, rep, line_no):
         base = {"single-root"}
     elif not ok_path:
         base = {"single-path"}
+    elif interest_flag:
+        base = {"single-interest"}
     else:
         base = {"triangulated"}
 
@@ -321,7 +336,7 @@ def evaluate_claim(workspace, row, by_sid, rep, line_no):
     else:
         allowed = base
 
-    return allowed, detail, n, len(types), len(roots), len(paths)
+    return allowed, detail, n, len(types), len(roots), len(paths), interest_flag
 
 
 def check_claims(workspace, rows, by_sid, depth, rep):
@@ -347,7 +362,8 @@ def check_claims(workspace, rows, by_sid, depth, rep):
                 rep.warn("取值域", f"claims.csv 第 {i} 行（{cid}）as_of 为空 —— 非数值论点也请填 '-'")
 
         # 断言 5：重算四条件，与声明的 status 必须一致
-        allowed, detail, n, ntype, nroot, npath = evaluate_claim(workspace, row, by_sid, rep, i)
+        allowed, detail, n, ntype, nroot, npath, interest_flag = evaluate_claim(
+            workspace, row, by_sid, rep, i)
         if status and status not in allowed:
             rep.err("断言5 四条件一致",
                     f"claims.csv 第 {i} 行（{cid}）声明 status='{status}'，但按源表重算只能是 "
@@ -368,6 +384,13 @@ def check_claims(workspace, rows, by_sid, depth, rep):
             if m and conf not in ("low",) and not (row.get("dissent") or "").strip().strip("-"):
                 rep.err("断言7 caveat 压置信度",
                         f"claims.csv 第 {i} 行（{cid}）source_caveat='{cav}' 且无仲裁/异议，confidence 应为 low")
+
+        # 断言 12：源表说有利益立场，论点就不能装没有
+        if depth != "shallow" and interest_flag and cav in ("", "-"):
+            rep.err("断言12 利益标注联动",
+                    f"claims.csv 第 {i} 行（{cid}）的有效源里 ≥2/3 带利益标注，"
+                    f"但 source_caveat 填的是 '-' —— 源表说这些源有立场，论点不能装没有。"
+                    f"按最主要的那一方填 vendor / self-reported / advocate")
 
 
 def parse_sections(path):

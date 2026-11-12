@@ -1,0 +1,4 @@
+sid,url,title,date,type,credibility,access,root,discovery_path,caveat
+01,https://vendor-a.example.com/report,A 设备厂年度报告,2025-04-01,一手,5,full,own,必应|LNG 接收站 单位投资|zh,advocate
+02,https://vendor-b.example.com/whitepaper,B 设备厂技术白皮书,2025-05-01,一手,5,full,own,官网|接收站 造价|zh,advocate
+03,https://industry.example.com/news,行业媒体转载,2025-06-01,行业媒体,3,full,own,必应|LNG terminal capex|en,advocate

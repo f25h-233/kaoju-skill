@@ -28,11 +28,11 @@ Arranging information is easier to write, looks more complete, and fools you mor
 
 ---
 
-## Core: two tables + four conditions
+## Core: two tables + four conditions, plus an interest check
 
 A research run produces two kinds of things — **sources** and **claims**. This skill records them in two separate tables:
 
-- `sources.csv`: one row per source (URL, type, credibility, original root, discovery path…)
+- `sources.csv`: one row per source (URL, type, credibility, original root, discovery path, **interest flag**…)
 - `claims.csv`: one row per conclusion (which sources it cites, confidence, any dissent…)
 
 Every claim must then pass **four-condition triangulation**:
@@ -40,6 +40,8 @@ Every claim must then pass **four-condition triangulation**:
 > **≥3 independent sources, ≥2 source types, ≥2 original roots, ≥2 independent discovery paths**
 
 All four must hold. **Crucially, `status` is not filled in by the model — it is computed from the source table by a script.** If what you wrote disagrees with the source table, validation fails outright.
+
+**But the four conditions only test independence — not whether the sources share an interest.** So there is a fifth check: when ≥2/3 of the effective sources carry an interest flag (`vendor` / `self-reported` / `advocate`), the claim is judged `single-interest` — three different companies, three different domains and three different search paths that all make a living selling the same class of equipment are not meaningfully independent. **Independence does not mean absence of a shared interest.**
 
 Two hard rules:
 
@@ -111,10 +113,10 @@ One command runs ledger validation, citation validation, source quality, and sum
 kaoju/
 ├── SKILL.md                     # Entry: three principles, 9 phases, depth gates, quick reference
 ├── references/
-│   ├── ledger.md            ★   # Column definitions, four conditions, 8 statuses (single source of truth)
+│   ├── ledger.md            ★   # Column definitions, four conditions, 9 statuses (single source of truth)
 │   ├── workflow.md              # Phase-by-phase detail
 │   ├── source-scoring.md        # Credibility rubric + domain authority tiers
-│   ├── adversarial.md           # Five red-team roles
+│   ├── adversarial.md           # Six red-team roles (4 check + 2 reconstruct/generate)
 │   ├── report-shape.md          # Argument-chain structure + self-check list
 │   ├── subagent-prompts.md      # Dispatch templates + search axes + anti-recursion rule
 │   ├── handoff.md               # Cross-session handoff + state window
@@ -142,7 +144,8 @@ Source type, original root, and discovery path are not properties of a *claim* �
 Intermediate results all go to disk. This is not fussiness: auto-compaction is disabled on this machine, so long research does not degrade gracefully — it hits a wall. Anything not on disk is already lost.
 
 **3. The red team is positioned as gap-finding, not falsification.**
-Every subagent here runs the same model, so the five roles are not five independent minds and their shared blind spots are not eliminated. Reliability of key conclusions therefore comes from cross-source triangulation, not the red team; and **do not spawn more agents "for independence"** — more agents add cost, not independence.
+Every subagent here runs the same model, so the six roles are not six independent minds and their shared blind spots are not eliminated. Reliability of key conclusions therefore comes from cross-source triangulation, not the red team; and **do not spawn more agents "for independence"** — more agents add cost, not independence.
+**But "same model" does not mean "same task"**: checking, reconstructing the interest structure, and generating a counter-argument are three different kinds of work with completely different attention targets. The red team's value therefore lies in **changing the task shape**, not in adding roles.
 
 ---
 
@@ -150,7 +153,7 @@ Every subagent here runs the same model, so the five roles are not five independ
 
 | Source | License | Contribution |
 |---|---|---|
-| [Socialpranker/deepdive](https://github.com/Socialpranker/deepdive) | MIT | Four-condition triangulation, 8 statuses, confidence ceiling, dissent protection, state window, red-team gating, circuit breakers |
+| [Socialpranker/deepdive](https://github.com/Socialpranker/deepdive) | MIT | Four-condition triangulation, 8 statuses (the 9th, `single-interest`, is added by this repo), confidence ceiling, dissent protection, state window, red-team gating, circuit breakers |
 | [staruhub/ClaudeSkills](https://github.com/staruhub/ClaudeSkills) | MIT | Three validation scripts, degraded mode, output tiers, handoff protocol |
 | [SeanEllyJames/deep-research-skill](https://github.com/SeanEllyJames/deep-research-skill) | MIT (**ideas only**) | Meta-reflection questions, "good answer" standard, section-title detector, counter-evidence search terms |
 | [grapeot/context-infrastructure](https://github.com/grapeot/context-infrastructure) | No license | Ideational origin of the Deep-vs-Wide framing (acknowledgement) |
@@ -161,9 +164,11 @@ Why the third entry is ideas-only and not text, see [THIRD_PARTY_NOTICES.md](THI
 
 ## Known gaps
 
-See [ROADMAP.md](ROADMAP.md). It records the full diagnosis of **insufficiently adversarial red-teaming** (three distinct causes, which is fixed, which is pending), plus each pending item's approach, cost, and **why it is not being done yet**.
+See [ROADMAP.md](ROADMAP.md). It records the full diagnosis of **insufficiently adversarial red-teaming** — three distinct causes, all now fixed — plus the two remaining items' approach, cost, and **why they are not being done yet**.
 
-The one-line version: the root cause is not too few roles — it is that **every subagent runs the same model**, so adding a role is like having one person wear one more hat. The pending direction is therefore to **change the task shape** (from "checking" to "reconstructing the interest structure + generating a counter-argument"), not to add roles.
+The one-line version: the root cause is not too few roles — it is that **every subagent runs the same model**, so adding a role is like having one person wear one more hat. The fix is therefore to **change the task shape** (from "checking" to "reconstructing the interest structure + generating a counter-argument"), not to add roles.
+
+**The biggest blank**: this skill has **never run a real end-to-end research task**, and every validation so far is fixture-level. On the first real run, the thing to watch is the **Opposing Counsel** role — its design assumption (generating is harder than criticising, so it exposes real weaknesses) can only be tested in practice. If the counter-arguments it writes always come out weak, either the prompt is not sharp enough or that role's acceptance criterion needs changing.
 
 ---
 
